@@ -1,31 +1,246 @@
 ---
-// QR kodla açılan sayfa. İçeriği netleşene kadar arama motorlarına kapalıdır ve site haritasında yer almaz.
+// Dijital kartvizit: fiziksel kartvizitteki QR kod bu sayfayı açar.
+// Üç işlem: rehbere ekle (vCard), WhatsApp, konum. Bilgiler src/data/site.ts dosyasından gelir.
+// Sayfa arama motorlarına kapalıdır ve site haritasında yer almaz.
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { maps, site, whatsappLink } from '../data/site';
+import logo from '../assets/marka/mtek-logo.png';
+import { maps, site, whatsappLink, withBase } from '../data/site';
+
+const tagline = site.tagline.split('•').map((part) => part.trim());
+const year = new Date().getFullYear();
 ---
 
-<BaseLayout title="MTEK Mühendislik" description="MTEK Mühendislik iletişim bilgileri." noindex>
-  <section class="section">
-    <div class="container qr">
-      <h1>{site.name}</h1>
-      <div class="qr__actions">
-        <a href={site.phone.href} class="btn btn--primary"><Icon name="phone" />{site.phone.display}</a>
-        <a href={whatsappLink()} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp ile yazın</a>
-        <a href={maps.directions} class="btn btn--outline" target="_blank" rel="noopener"><Icon name="route" />Yol tarifi alın</a>
+<BaseLayout
+  title={`${site.legalName} | Dijital Kartvizit`}
+  description={`${site.legalName}: ${site.tagline}. Rehbere ekleyin, WhatsApp ile yazın veya konumumuza yol tarifi alın.`}
+  noindex
+  bare
+>
+  <main class="kart">
+    <header class="kart__head">
+      <div class="kart__logo">
+        <Image src={logo} alt={`${site.legalName} logosu`} widths={[240, 480, 720]} sizes="240px" loading="eager" fetchpriority="high" />
       </div>
-    </div>
-  </section>
+      <h1 class="kart__name">{site.legalName}</h1>
+      <p class="kart__tagline">
+        {tagline.map((part, i) => (
+          <>
+            {i > 0 && <span class="kart__dot" aria-hidden="true">•</span>}
+            <span>{part}</span>
+          </>
+        ))}
+      </p>
+      <p class="kart__welcome">Bizimle iletişime geçin.</p>
+    </header>
+
+    <nav class="kart__actions" aria-label="İletişim">
+      <a href={withBase('/mtek-elektrik.vcf')} class="kart-btn">
+        <span class="kart-btn__icon kart-btn__icon--rehber"><Icon name="rehber" size={26} /></span>
+        <span class="kart-btn__label">Rehbere Ekle</span>
+        <Icon name="next" size={20} class="kart-btn__arrow" />
+      </a>
+      <a href={whatsappLink(site.whatsapp.cardMessage)} class="kart-btn" target="_blank" rel="noopener">
+        <span class="kart-btn__icon kart-btn__icon--whatsapp"><Icon name="whatsapp" size={26} /></span>
+        <span class="kart-btn__label">WhatsApp ile İletişime Geç</span>
+        <Icon name="next" size={20} class="kart-btn__arrow" />
+      </a>
+      <a href={maps.location} class="kart-btn" target="_blank" rel="noopener">
+        <span class="kart-btn__icon kart-btn__icon--konum"><Icon name="pin" size={26} /></span>
+        <span class="kart-btn__label">Konumumuz</span>
+        <Icon name="next" size={20} class="kart-btn__arrow" />
+      </a>
+    </nav>
+
+    <footer class="kart__foot">
+      <p class="kart__foot-name">{site.legalName}</p>
+      <p>{site.tagline}</p>
+      <p>© {year} Tüm hakları saklıdır.</p>
+    </footer>
+  </main>
 </BaseLayout>
 
 <style>
-  .qr {
-    display: grid;
-    gap: 1.5rem;
-    max-width: 30rem;
+  :global(body) {
+    background: var(--navy-deep);
   }
-  .qr__actions {
+
+  .kart {
     display: grid;
-    gap: 0.75rem;
+    align-content: center;
+    gap: 2.25rem;
+    width: 100%;
+    max-width: 27rem;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin-inline: auto;
+    padding: 2.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+    color: #fff;
+    text-align: center;
+    background:
+      radial-gradient(120% 55% at 50% 0%, rgb(86 110 200 / 0.35), transparent 65%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+  }
+
+  @media (min-width: 30rem) {
+    .kart {
+      max-width: none;
+      padding-inline: max(1.25rem, calc((100% - 27rem) / 2));
+    }
+  }
+
+  /* Üst bölüm */
+  .kart__head {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+  }
+  .kart__logo {
+    margin-bottom: 0.9rem;
+    padding: 1.1rem 1.5rem;
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
+  }
+  .kart__logo img {
+    display: block;
+    width: 13rem;
+    height: auto;
+  }
+  .kart__name {
+    font-size: clamp(1.25rem, 1.05rem + 1vw, 1.5rem);
+    font-stretch: var(--wide);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .kart__tagline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0.6rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c9d2f2;
+  }
+  .kart__dot {
+    color: var(--green);
+  }
+  .kart__welcome {
+    margin-top: 0.9rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--green);
+    font-size: 1.0625rem;
+    color: rgb(255 255 255 / 0.88);
+  }
+
+  /* Butonlar */
+  .kart__actions {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .kart-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    min-height: 4.5rem;
+    padding: 0.75rem 1rem 0.75rem 0.75rem;
+    border-radius: 1.125rem;
+    background: #fff;
+    color: var(--navy);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    text-align: left;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .kart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.24);
+  }
+  .kart-btn:active {
+    transform: scale(0.98);
+  }
+  .kart-btn:focus-visible {
+    outline: 3px solid var(--green);
+    outline-offset: 3px;
+  }
+  .kart-btn__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.85rem;
+    color: #fff;
+  }
+  .kart-btn__icon--rehber {
+    background: var(--navy);
+  }
+  .kart-btn__icon--whatsapp {
+    background: #25d366;
+  }
+  .kart-btn__icon--konum {
+    background: var(--green);
+  }
+  .kart-btn__label {
+    flex: 1;
+    line-height: 1.25;
+  }
+  .kart-btn :global(.kart-btn__arrow) {
+    flex: none;
+    color: #9aa3bd;
+  }
+
+  /* Alt bölüm */
+  .kart__foot {
+    display: grid;
+    gap: 0.2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: rgb(255 255 255 / 0.6);
+  }
+  .kart__foot p:not(:last-child) {
+    text-transform: uppercase;
+  }
+  .kart__foot-name {
+    font-weight: 700;
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  /* Hafif giriş animasyonu */
+  @media (prefers-reduced-motion: no-preference) {
+    .kart__head,
+    .kart-btn,
+    .kart__foot {
+      animation: kart-in 0.5s ease backwards;
+    }
+    .kart-btn:nth-child(1) {
+      animation-delay: 0.08s;
+    }
+    .kart-btn:nth-child(2) {
+      animation-delay: 0.16s;
+    }
+    .kart-btn:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+    .kart__foot {
+      animation-delay: 0.32s;
+    }
+  }
+  @keyframes kart-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
   }
 </style>

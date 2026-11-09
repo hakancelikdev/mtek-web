@@ -19,6 +19,8 @@ interface Props {
   ogImageAlt?: string;
   breadcrumbs?: Crumb[];
   noindex?: boolean;
+  /** Üst menü, alt bilgi ve sabit WhatsApp butonu olmadan tek başına sayfa (ör. /qr). */
+  bare?: boolean;
 }
 
 const {
@@ -28,6 +30,7 @@ const {
   ogImageAlt = 'MTEK Mühendislik — açık tavanda kablo tavaları ve aydınlatma uygulaması',
   breadcrumbs,
   noindex = false,
+  bare = false,
 } = Astro.props;
 
 const pathname = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/(.)\/$/, '$1');
@@ -125,12 +128,20 @@ const breadcrumbLd = breadcrumbs?.length
     {breadcrumbLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />}
   </head>
   <body>
-    <a class="skip-link" href="#icerik">İçeriğe geç</a>
-    <Header />
-    <main id="icerik" tabindex="-1">
-      <slot />
-    </main>
-    <Footer />
-    <WhatsAppFloat />
+    {
+      bare ? (
+        <slot />
+      ) : (
+        <>
+          <a class="skip-link" href="#icerik">İçeriğe geç</a>
+          <Header />
+          <main id="icerik" tabindex="-1">
+            <slot />
+          </main>
+          <Footer />
+          <WhatsAppFloat />
+        </>
+      )
+    }
   </body>
 </html>

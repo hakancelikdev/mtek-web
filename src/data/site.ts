@@ -5,6 +5,8 @@ export const site = {
   legalName: 'MTEK Elektrik Mühendislik',
   url: 'https://www.mtekelektrik.com',
   slogan: 'Güvenli Teknolojik Çözümler',
+  // Dijital kartvizitte (/qr) firma adının altında görünür.
+  tagline: 'Aydınlatma • Proje • Taahhüt',
   phone: {
     display: '0507 447 82 93',
     href: 'tel:+905074478293',
@@ -13,6 +15,8 @@ export const site = {
   whatsapp: {
     number: '905074478293',
     message: 'Merhaba, MTEK Mühendislik hizmetleri hakkında bilgi ve teklif almak istiyorum.',
+    // Dijital kartvizitteki (/qr) WhatsApp butonunun hazır mesajı.
+    cardMessage: 'Merhaba, MTEK Elektrik Mühendislik ile iletişime geçmek istiyorum.',
   },
   // E-posta adresi belli olduğunda buraya yazılır; boşken sitede gösterilmez.
   email: '',
@@ -36,6 +40,8 @@ const mapsPoint = `${geo.latitude},${geo.longitude}`;
 export const maps = {
   embed: `https://www.google.com/maps?q=${mapsPoint}&z=17&output=embed`,
   directions: `https://www.google.com/maps/dir/?api=1&destination=${mapsPoint}`,
+  // Konumu gösterir; telefonda Google Haritalar uygulaması yüklüyse onunla açılır.
+  location: `https://www.google.com/maps/search/?api=1&query=${mapsPoint}`,
 };
 
 export function whatsappLink(text: string = site.whatsapp.message): string {
