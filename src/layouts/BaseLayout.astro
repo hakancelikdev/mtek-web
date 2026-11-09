@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
-import { site, withBase } from '../data/site';
+import { geo, site, withBase } from '../data/site';
 import fontUrl from '../assets/fonts/archivo-tr.woff2?url';
 
 export interface Crumb {
@@ -61,6 +61,7 @@ const business = {
     ...(site.address.postalCode ? { postalCode: site.address.postalCode } : {}),
     addressCountry: site.address.country,
   },
+  geo: { '@type': 'GeoCoordinates', ...geo },
   areaServed: { '@type': 'City', name: site.areaServed },
   hasOfferCatalog: {
     '@type': 'OfferCatalog',

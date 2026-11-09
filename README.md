@@ -85,7 +85,7 @@ Bundan sonra `main` dalına yapılan her push otomatik olarak derlenir ve yayın
 Yayından sonra:
 
 - [Google Search Console](https://search.google.com/search-console)'a siteyi ekleyin ve `https://www.mtekelektrik.com/sitemap-index.xml` site haritasını gönderin.
-- "Adana elektrikçi" gibi yerel aramalarda görünmek için bir **Google İşletme Profili** açın. Profildeki ad, adres ve telefon sitedekiyle birebir aynı olmalıdır. Profil açıldıktan sonra `src/data/site.ts` içindeki harita bağlantıları, işletmenin tam konumunu gösteren Google Haritalar bağlantısıyla değiştirilebilir.
+- "Adana elektrikçi" gibi yerel aramalarda görünmek için bir **Google İşletme Profili** açın. Profildeki ad, adres ve telefon sitedekiyle birebir aynı olmalıdır. Harita ve yol tarifi, `src/data/site.ts` içindeki `geo` koordinatlarını kullanır; konum değişirse yalnızca bu iki sayı güncellenir.
 
 ## Güvenlik ve performans
 

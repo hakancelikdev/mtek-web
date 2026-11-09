@@ -28,11 +28,14 @@ export const site = {
 
 export const addressOneLine = `${site.address.street}, ${site.address.district} / ${site.address.city.toLocaleUpperCase('tr-TR')}`;
 
-const mapsQuery = encodeURIComponent(`${site.address.street}, ${site.address.district}, ${site.address.city}`);
+// İşletmenin harita konumu (Yandex Haritalar'daki işletme kaydındaki nokta).
+export const geo = { latitude: 37.014964, longitude: 35.321757 } as const;
+
+const mapsPoint = `${geo.latitude},${geo.longitude}`;
 
 export const maps = {
-  embed: `https://www.google.com/maps?q=${mapsQuery}&output=embed`,
-  directions: `https://www.google.com/maps/dir/?api=1&destination=${mapsQuery}`,
+  embed: `https://www.google.com/maps?q=${mapsPoint}&z=17&output=embed`,
+  directions: `https://www.google.com/maps/dir/?api=1&destination=${mapsPoint}`,
 };
 
 export function whatsappLink(text: string = site.whatsapp.message): string {
