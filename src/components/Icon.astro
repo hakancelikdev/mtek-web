@@ -16,7 +16,8 @@ export type IconName =
   | 'zayif-akim'
   | 'kamera'
   | 'proje'
-  | 'rehber';
+  | 'rehber'
+  | 'web';
 
 interface Props {
   name: IconName;
@@ -48,6 +49,7 @@ const stroke: Partial<Record<IconName, string>> = {
   kamera:
     '<path d="M3 7.5h12.5a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5H3Z"/><path d="m17 10 4-2v6l-4-2"/><path d="M6 13.5V18H3"/>',
   rehber: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M19 8v6M16 11h6"/>',
+  web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3Z"/>',
   proje:
     '<path d="M5 3h10l4 4v14H5Z"/><path d="M15 3v4h4"/><path d="m9 17 3-7 3 7"/><path d="M10.2 14.5h3.6"/>',
 };

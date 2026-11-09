@@ -1,6 +1,6 @@
 ---
 // Dijital kartvizit: fiziksel kartvizitteki QR kod bu sayfayı açar.
-// Üç işlem: rehbere ekle (vCard), WhatsApp, konum. Bilgiler src/data/site.ts dosyasından gelir.
+// Üç ana işlem: rehbere ekle (vCard), WhatsApp, konum; altında web sitesine geçiş. Bilgiler src/data/site.ts dosyasından gelir.
 // Sayfa arama motorlarına kapalıdır ve site haritasında yer almaz.
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -50,6 +50,10 @@ const year = new Date().getFullYear();
         <span class="kart-btn__icon kart-btn__icon--konum"><Icon name="pin" size={26} /></span>
         <span class="kart-btn__label">Konumumuz</span>
         <Icon name="next" size={20} class="kart-btn__arrow" />
+      </a>
+      <a href={withBase('/')} class="kart-btn kart-btn--ikincil">
+        <Icon name="web" size={22} />
+        <span>Web Sitemizi Ziyaret Edin</span>
       </a>
     </nav>
 
@@ -174,6 +178,24 @@ const year = new Date().getFullYear();
     outline: 3px solid var(--green);
     outline-offset: 3px;
   }
+  /* Web sitesi bağlantısı: üç ana butonun önüne geçmemesi için sade, çerçeveli */
+  .kart-btn--ikincil {
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.5rem;
+    margin-top: 0.35rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1.5px solid rgb(255 255 255 / 0.4);
+    box-shadow: none;
+  }
+  .kart-btn--ikincil:hover {
+    border-color: #fff;
+    box-shadow: none;
+  }
   .kart-btn__icon {
     flex: none;
     display: grid;
@@ -233,8 +255,11 @@ const year = new Date().getFullYear();
     .kart-btn:nth-child(3) {
       animation-delay: 0.24s;
     }
-    .kart__foot {
+    .kart-btn:nth-child(4) {
       animation-delay: 0.32s;
+    }
+    .kart__foot {
+      animation-delay: 0.4s;
     }
   }
   @keyframes kart-in {
