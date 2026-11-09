@@ -1,0 +1,38 @@
+---
+import type { Crumb } from '../layouts/BaseLayout.astro';
+import { withBase } from '../data/site';
+
+interface Props {
+  title: string;
+  intro?: string;
+  breadcrumbs: Crumb[];
+}
+
+const { title, intro, breadcrumbs } = Astro.props;
+---
+
+<div class="page-head">
+  <div class="container">
+    <div class="page-head__inner">
+    <nav class="breadcrumb" aria-label="Sayfa konumu">
+      <ol>
+        <li><a href={withBase('/')}>Ana Sayfa</a></li>
+        {
+          breadcrumbs.map((c, i) =>
+            i === breadcrumbs.length - 1 ? (
+              <li aria-current="page">{c.name}</li>
+            ) : (
+              <li>
+                <a href={withBase(c.href)}>{c.name}</a>
+              </li>
+            ),
+          )
+        }
+      </ol>
+    </nav>
+    <h1>{title}</h1>
+    {intro && <p>{intro}</p>}
+    <slot />
+    </div>
+  </div>
+</div>

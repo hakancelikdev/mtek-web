@@ -1,0 +1,135 @@
+---
+import '../styles/global.css';
+import { getCollection } from 'astro:content';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import { site, withBase } from '../data/site';
+import fontUrl from '../assets/fonts/archivo-tr.woff2?url';
+
+export interface Crumb {
+  name: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  breadcrumbs?: Crumb[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogImage = withBase('/og/mtek-muhendislik.jpg'),
+  ogImageAlt = 'MTEK Mühendislik — açık tavanda kablo tavaları ve aydınlatma uygulaması',
+  breadcrumbs,
+  noindex = false,
+} = Astro.props;
+
+const pathname = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/(.)\/$/, '$1');
+const canonical = new URL(pathname, Astro.site).href;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+// Sitenin yayınlandığı kök adres; asıl alan adında https://www.mtekelektrik.com olur.
+const origin = new URL(withBase('/'), Astro.site).href.replace(/\/$/, '');
+// Asıl alan adı dışındaki yayınlar (önizlemeler) arama motorlarına kapatılır.
+const isPreview = Astro.site?.origin !== new URL(site.url).origin;
+const fullTitle = title.includes('MTEK') ? title : `${title} | ${site.name}`;
+
+const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+
+const business = {
+  '@context': 'https://schema.org',
+  '@type': 'Electrician',
+  '@id': `${origin}/#isletme`,
+  name: site.name,
+  alternateName: site.legalName,
+  slogan: site.slogan,
+  url: origin,
+  telephone: site.phone.e164,
+  ...(site.email ? { email: site.email } : {}),
+  logo: `${origin}/logo.png`,
+  image: `${origin}/og/mtek-muhendislik.jpg`,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.district,
+    addressRegion: site.address.city,
+    ...(site.address.postalCode ? { postalCode: site.address.postalCode } : {}),
+    addressCountry: site.address.country,
+  },
+  areaServed: { '@type': 'City', name: site.areaServed },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Faaliyet Alanlarımız',
+    itemListElement: services.map((s) => ({
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: s.data.title,
+        url: `${origin}/faaliyet-alanlarimiz/${s.id}`,
+      },
+    })),
+  },
+};
+
+const breadcrumbLd = breadcrumbs?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [{ name: 'Ana Sayfa', href: '/' }, ...breadcrumbs].map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.name,
+        item: `${origin}${c.href}`,
+      })),
+    }
+  : null;
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {(noindex || isPreview) && <meta name="robots" content="noindex" />}
+
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="32x32" />
+    <link rel="icon" href={withBase('/icon-192.png')} type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
+    <meta name="theme-color" content="#2a356c" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(business)} />
+    {breadcrumbLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#icerik">İçeriğe geç</a>
+    <Header />
+    <main id="icerik" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <WhatsAppFloat />
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mtek-web",
+  "compatibility_date": "2026-11-01",
+  // Sadece statik dosyalar: sunucu kodu yok.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "drop-trailing-slash"
+  }
+}

@@ -1,0 +1,185 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ProjectGallery from '../../components/ProjectGallery.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import { projectCategories, projectCategoryKeys } from '../../data/kategoriler';
+import { withBase } from '../../data/site';
+
+const projects = (await getCollection('projeler')).sort((a, b) => a.data.order - b.data.order);
+// Yalnızca en az bir projesi olan kategoriler filtre olarak gösterilir.
+const usedCategories = projectCategoryKeys.filter((key) => projects.some((p) => p.data.categories.includes(key)));
+const breadcrumbs = [{ name: 'Projelerimiz', href: '/projelerimiz' }];
+---
+
+<BaseLayout
+  title="Projelerimiz | Adana Elektrik, Aydınlatma ve Kamera Uygulamaları"
+  description="MTEK Mühendislik'in Adana'da tamamladığı elektrik tesisatı, aydınlatma, kablo tavası, kamera ve güvenlik sistemi uygulamalarından gerçek saha fotoğrafları."
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead
+    title="Projelerimiz"
+    intro="Sahada tamamladığımız işlerden gerçek fotoğraflar. Fotoğraflara dokunarak büyük görüntüleyebilirsiniz."
+    breadcrumbs={breadcrumbs}
+  />
+
+  <section class="section projects-section" aria-label="Proje listesi">
+    <div class="container">
+      {
+        usedCategories.length > 1 && (
+          <div class="filters" role="group" aria-label="Kategoriye göre filtrele" data-filters hidden>
+            <button type="button" class="filter" aria-pressed="true" data-filter="tumu">
+              Tümü
+            </button>
+            {usedCategories.map((key) => (
+              <button type="button" class="filter" aria-pressed="false" data-filter={key}>
+                {projectCategories[key]}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      <ul role="list" class="project-list">
+        {
+          projects.map((p, i) => (
+            <li class="project" data-categories={p.data.categories.join(' ')}>
+              <div class="project__head">
+                <h2>
+                  <a href={withBase(`/projelerimiz/${p.id}`)}>{p.data.title}</a>
+                </h2>
+                <ul role="list" class="tags" aria-label="Uygulama kategorileri">
+                  {p.data.categories.map((c) => (
+                    <li>{projectCategories[c]}</li>
+                  ))}
+                </ul>
+                <p>{p.data.summary}</p>
+                <a href={withBase(`/projelerimiz/${p.id}`)} class="text-link">Proje ayrıntıları</a>
+              </div>
+              <ProjectGallery project={p} eagerFirst={i === 0} />
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="projects-note" data-empty hidden>Bu kategoride henüz yayınlanmış bir proje bulunmuyor.</p>
+    </div>
+  </section>
+
+  <CtaBand title="Projeniz için bize ulaşın" />
+  <Lightbox />
+</BaseLayout>
+
+<script>
+  const filters = document.querySelector<HTMLElement>('[data-filters]');
+  if (filters) {
+    filters.hidden = false;
+    const buttons = [...filters.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+    const projects = [...document.querySelectorAll<HTMLElement>('[data-categories]')];
+    const empty = document.querySelector<HTMLElement>('[data-empty]');
+
+    filters.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+      if (!button) return;
+      const value = button.dataset.filter!;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      let shown = 0;
+      projects.forEach((p) => {
+        const match = value === 'tumu' || p.dataset.categories!.split(' ').includes(value);
+        p.hidden = !match;
+        if (match) shown++;
+      });
+      if (empty) empty.hidden = shown > 0;
+    });
+  }
+</script>
+
+<style>
+  .projects-section {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .filters[hidden] {
+    display: none;
+  }
+  .filter {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 550;
+    cursor: pointer;
+  }
+  .filter:hover {
+    border-color: var(--navy);
+  }
+  .filter[aria-pressed='true'] {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+
+  .project-list {
+    display: grid;
+    gap: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  }
+  .project {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .project[hidden] {
+    display: none;
+  }
+  .project__head {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 46rem;
+  }
+  .project h2 {
+    font-size: var(--step-2);
+  }
+  .project h2 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .project h2 a:hover {
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+  }
+  .project__head > p {
+    color: var(--ink-soft);
+  }
+  .project__head .text-link {
+    justify-self: start;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tags li {
+    padding: 0.2rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .projects-note {
+    color: var(--ink-soft);
+  }
+</style>

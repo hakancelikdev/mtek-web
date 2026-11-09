@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { site, withBase } from '../data/site';
+---
+
+<BaseLayout title="Sayfa bulunamadı" description="Aradığınız sayfa bulunamadı." noindex>
+  <section class="section">
+    <div class="container not-found">
+      <h1>Aradığınız sayfa bulunamadı</h1>
+      <p>Sayfa taşınmış ya da adresi değişmiş olabilir. Ana sayfadan devam edebilir veya bize doğrudan ulaşabilirsiniz.</p>
+      <div class="btn-row">
+        <a href={withBase('/')} class="btn btn--primary">Ana sayfaya dön</a>
+        <a href={site.phone.href} class="btn btn--outline"><Icon name="phone" />{site.phone.display}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 44rem;
+    min-height: 40vh;
+    align-content: center;
+  }
+  .not-found p {
+    color: var(--ink-soft);
+  }
+</style>

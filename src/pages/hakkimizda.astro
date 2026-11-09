@@ -1,0 +1,203 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { principles } from '../data/site';
+import photo from '../content/projeler/ticari-alan-aydinlatma-ve-guvenlik/tavan-kablo-tavalari-genis.jpg';
+
+const breadcrumbs = [{ name: 'Hakkımızda', href: '/hakkimizda' }];
+
+const audiences = [
+  'Bireysel müşteriler',
+  'Konut ve villa sahipleri',
+  'Apartman ve site yönetimleri',
+  'Müteahhitler ve inşaat firmaları',
+  'Ticari işletmeler ve mağazalar',
+  'Fabrikalar ve endüstriyel tesisler',
+  'Mimarlık ve mühendislik ofisleri',
+];
+---
+
+<BaseLayout
+  title="Hakkımızda | MTEK Mühendislik Adana"
+  description="MTEK Mühendislik; Adana'da elektrik tesisatı, aydınlatma, alçak gerilim ve zayıf akım alanlarında mühendislik bilgisini saha tecrübesiyle birleştiren elektrik mühendislik firmasıdır."
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead
+    title="Hakkımızda"
+    intro="Mühendislik bilgisini saha tecrübesiyle birleştiriyor, her projede teknik doğruluğu ve iş güvenliğini esas alıyoruz."
+    breadcrumbs={breadcrumbs}
+  />
+
+  <section class="section" aria-labelledby="biz-kimiz">
+    <div class="container about">
+      <div class="prose about__text">
+        <h2 id="biz-kimiz">MTEK Mühendislik</h2>
+        <p class="lead">
+          MTEK Mühendislik, elektrik ve mühendislik alanındaki bilgi birikimini saha tecrübesiyle birleştirerek bireysel ve kurumsal müşterilerine güvenilir çözümler sunmak amacıyla kurulmuştur.
+        </p>
+        <p>
+          Elektrik tesisatları, aydınlatma sistemleri, alçak gerilim ve zayıf akım uygulamaları başta olmak üzere farklı ölçeklerdeki projelerde teknik doğruluk, iş güvenliği ve kaliteli uygulama anlayışıyla hizmet vermektedir.
+        </p>
+        <p>Her projeye ihtiyaca uygun, sürdürülebilir ve işlevsel çözümler üretme yaklaşımıyla hareket eder.</p>
+      </div>
+      <figure class="about__figure">
+        <Picture
+          src={photo}
+          alt="MTEK Mühendislik uygulaması: tavan boyunca uzanan galvaniz kablo tavaları ve aydınlatma"
+          formats={['avif', 'webp']}
+          widths={[480, 720, 960, 1280]}
+          sizes="(min-width: 64rem) 40vw, 100vw"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section section--mist" aria-label="Vizyon ve misyon">
+    <div class="container vm">
+      <div class="vm__item">
+        <h2>Vizyonumuz</h2>
+        <p>
+          Elektrik ve mühendislik sektöründe teknolojik gelişmeleri takip eden, kaliteli uygulamaları ve güvenilir hizmet anlayışıyla tercih edilen bir mühendislik markası olmak.
+        </p>
+      </div>
+      <div class="vm__item">
+        <h2>Misyonumuz</h2>
+        <p>
+          Mühendislik disiplinini saha tecrübesiyle birleştirerek müşterilerimizin ihtiyaçlarına güvenli, verimli ve sürdürülebilir çözümler sunmak; her projede kaliteyi, teknik doğruluğu ve müşteri memnuniyetini ön planda tutmak.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ilkeler-baslik">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="ilkeler-baslik">Çalışma ilkelerimiz</h2>
+      </div>
+      <dl class="principle-list">
+        {
+          principles.map((p) => (
+            <div>
+              <dt>{p.title}</dt>
+              <dd>{p.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--mist" aria-labelledby="kimlere-baslik">
+    <div class="container audience">
+      <div class="section-head">
+        <h2 id="kimlere-baslik">Kimlere hizmet veriyoruz</h2>
+        <p>Tek bir dairenin tesisat yenilemesinden endüstriyel bir tesisin dağıtım altyapısına kadar farklı ölçeklerde çalışıyoruz.</p>
+      </div>
+      <ul role="list" class="audience__list">
+        {audiences.map((a) => <li>{a}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .about__text h2 {
+    margin-bottom: 0.5rem;
+  }
+  .about__figure {
+    margin: 0;
+  }
+  .about__figure :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  @media (min-width: 64rem) {
+    .about {
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .vm {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .vm__item {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--navy);
+  }
+  .vm__item h2 {
+    font-size: var(--step-2);
+  }
+  .vm__item p {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 34rem;
+  }
+  @media (min-width: 56rem) {
+    .vm {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .principle-list {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .principle-list > div {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .principle-list dt {
+    font-weight: 700;
+    font-stretch: var(--wide);
+    font-size: var(--step-1);
+  }
+  .principle-list dd {
+    margin: 0;
+    color: var(--ink-soft);
+    max-width: 44rem;
+  }
+  @media (min-width: 56rem) {
+    .principle-list > div {
+      grid-template-columns: 22rem 1fr;
+      gap: 2rem;
+      align-items: baseline;
+    }
+  }
+
+  .audience__list {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .audience__list li {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+    font-weight: 550;
+  }
+  @media (min-width: 48rem) {
+    .audience__list {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2.5rem;
+    }
+  }
+</style>

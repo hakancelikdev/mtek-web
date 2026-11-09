@@ -1,0 +1,164 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ProjectGallery from '../../components/ProjectGallery.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import { projectCategories } from '../../data/kategoriler';
+import { withBase } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projeler');
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const d = project.data;
+
+const services = await getCollection('hizmetler');
+const relatedServices = services
+  .filter((s) => s.data.projectCategories.some((c) => d.categories.includes(c)))
+  .sort((a, b) => a.data.order - b.data.order);
+
+// Paylaşım görseli: proje kapağından 1200x630 kırpılmış JPEG
+const og = await getImage({ src: d.cover, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
+
+const breadcrumbs = [
+  { name: 'Projelerimiz', href: '/projelerimiz' },
+  { name: d.title, href: `/projelerimiz/${project.id}` },
+];
+---
+
+<BaseLayout
+  title={`${d.title} | MTEK Mühendislik Adana`}
+  description={d.summary}
+  ogImage={og.src}
+  ogImageAlt={d.coverAlt}
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead title={d.title} breadcrumbs={breadcrumbs}>
+    <ul role="list" class="tags" aria-label="Uygulama kategorileri">
+      {d.categories.map((c) => <li>{projectCategories[c]}</li>)}
+    </ul>
+  </PageHead>
+
+  <section class="section" aria-labelledby="proje-aciklama">
+    <div class="container project-detail">
+      <div class="prose">
+        <h2 id="proje-aciklama" class="visually-hidden">Proje açıklaması</h2>
+        <p class="lead">{d.summary}</p>
+        <Content />
+      </div>
+      {
+        (d.location || d.year || relatedServices.length > 0) && (
+          <dl class="facts">
+            {d.location && (
+              <div>
+                <dt>Konum</dt>
+                <dd>{d.location}</dd>
+              </div>
+            )}
+            {d.year && (
+              <div>
+                <dt>Yıl</dt>
+                <dd>{d.year}</dd>
+              </div>
+            )}
+            {relatedServices.length > 0 && (
+              <div>
+                <dt>İlgili hizmetler</dt>
+                <dd>
+                  <ul role="list">
+                    {relatedServices.map((s) => (
+                      <li>
+                        <a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)}>{s.data.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            )}
+          </dl>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section section--mist" aria-labelledby="fotograflar">
+    <div class="container">
+      <h2 id="fotograflar" class="gallery-title">Fotoğraflar</h2>
+      <ProjectGallery project={project} eagerFirst />
+    </div>
+  </section>
+
+  <div class="container back">
+    <a href={withBase('/projelerimiz')} class="text-link">Tüm projelere dön</a>
+  </div>
+
+  <CtaBand title="Benzer bir uygulama için teklif alın" />
+  <Lightbox />
+</BaseLayout>
+
+<style>
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tags li {
+    padding: 0.2rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .project-detail {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .project-detail {
+      grid-template-columns: 1.6fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .facts {
+    display: grid;
+    margin: 0;
+    border-top: 2px solid var(--navy);
+  }
+  .facts > div {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .facts dt {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .facts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .facts dd ul {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .gallery-title {
+    font-size: var(--step-2);
+    margin-bottom: 1.5rem;
+  }
+
+  .back {
+    padding-block: 2.5rem;
+  }
+</style>

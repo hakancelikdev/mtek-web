@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import { whatsappLink } from '../data/site';
+---
+
+<a href={whatsappLink()} class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp üzerinden mesaj gönderin">
+  <Icon name="whatsapp" size={30} />
+</a>
+
+<style>
+  .wa-float {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: #1f7a43;
+    color: #fff;
+    box-shadow: 0 6px 18px rgb(20 30 60 / 0.25);
+    transition: background-color 0.15s ease;
+  }
+  .wa-float:hover {
+    background: #17603a;
+  }
+  .wa-float:focus-visible {
+    outline-offset: 4px;
+  }
+  :global(html.menu-open) .wa-float {
+    display: none;
+  }
+</style>

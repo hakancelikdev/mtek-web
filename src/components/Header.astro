@@ -1,0 +1,267 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/marka/mtek-logo.png';
+import Icon from './Icon.astro';
+import { nav, site, whatsappLink, withBase, withoutBase } from '../data/site';
+
+const path = withoutBase(Astro.url.pathname).replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`));
+---
+
+<header class="site-header">
+  <div class="container site-header__bar">
+    <a href={withBase('/')} class="site-header__logo" aria-label="MTEK Mühendislik ana sayfa">
+      <Image src={logo} alt="MTEK Elektrik Mühendislik logosu" widths={[140, 280, 420]} sizes="140px" loading="eager" fetchpriority="high" />
+    </a>
+
+    <nav class="site-nav" aria-label="Ana menü">
+      <ul role="list" class="site-nav__list">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={withBase(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a href={site.phone.href} class="site-header__phone">
+        <Icon name="phone" size={20} />
+        <span>{site.phone.display}</span>
+      </a>
+      <a href={withBase('/iletisim#teklif')} class="btn btn--primary site-header__cta">Teklif Al</a>
+      <a href={site.phone.href} class="icon-btn site-header__call" aria-label={`Telefonla arayın: ${site.phone.display}`}>
+        <Icon name="phone" />
+      </a>
+      <button type="button" class="icon-btn site-header__toggle" aria-expanded="false" aria-controls="mobil-menu" data-menu-toggle>
+        <Icon name="menu" class="icon-open" />
+        <Icon name="close" class="icon-close" />
+        <span class="visually-hidden">Menüyü aç</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobil-menu" hidden data-menu>
+    <nav class="container" aria-label="Mobil menü">
+      <ul role="list" class="mobile-menu__list">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={withBase(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mobile-menu__actions">
+        <a href={site.phone.href} class="btn btn--primary"><Icon name="phone" />{site.phone.display}</a>
+        <a href={whatsappLink()} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp ile yazın</a>
+        <a href={withBase('/iletisim#teklif')} class="btn btn--outline">Teklif Al</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+
+  if (toggle && menu) {
+    const label = toggle.querySelector('.visually-hidden');
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+      document.documentElement.classList.toggle('menu-open', open);
+      if (label) label.textContent = open ? 'Menüyü kapat' : 'Menüyü aç';
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.hidden) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    window.matchMedia('(min-width: 68rem)').addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* backdrop-filter kullanılmaz: sabit konumlu mobil menünün tam ekran açılmasını engeller */
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-header__bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: var(--header-h);
+  }
+
+  .site-header__logo {
+    flex: none;
+    display: block;
+    padding-block: 0.6rem;
+  }
+  .site-header__logo img {
+    width: 124px;
+    height: auto;
+  }
+
+  .site-nav {
+    display: none;
+    margin-left: auto;
+  }
+  .site-nav__list {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .site-nav a {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    color: var(--ink);
+    font-weight: 550;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .site-nav a:hover {
+    color: var(--navy);
+    border-bottom-color: var(--line);
+  }
+  .site-nav a[aria-current='page'] {
+    color: var(--navy);
+    border-bottom-color: var(--green);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .site-header__phone,
+  .site-header__cta {
+    display: none;
+  }
+  .site-header__phone {
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem;
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .site-header__phone:hover {
+    color: var(--navy);
+  }
+  .site-header__cta {
+    min-height: 2.75rem;
+    padding-inline: 1.1rem;
+  }
+
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--navy);
+    cursor: pointer;
+  }
+  .icon-btn:hover {
+    border-color: var(--navy);
+  }
+  .site-header__toggle :global(.icon-close) {
+    display: none;
+  }
+  .site-header__toggle[aria-expanded='true'] :global(.icon-open) {
+    display: none;
+  }
+  .site-header__toggle[aria-expanded='true'] :global(.icon-close) {
+    display: block;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    overflow-y: auto;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding-block: 1rem 2rem;
+  }
+  .mobile-menu__list a {
+    display: block;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-size: var(--step-1);
+    font-stretch: var(--wide);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .mobile-menu__list a[aria-current='page'] {
+    color: var(--navy);
+    box-shadow: inset 4px 0 0 var(--green);
+    padding-left: 0.9rem;
+  }
+  .mobile-menu__actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+
+  @media (min-width: 40rem) {
+    .site-header__logo img {
+      width: 140px;
+    }
+    .site-header__cta {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 68rem) {
+    .site-nav {
+      display: block;
+    }
+    .site-header__actions {
+      margin-left: 0.5rem;
+    }
+    .site-header__toggle {
+      display: none;
+    }
+    .mobile-menu {
+      display: none;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .site-header__phone {
+      display: inline-flex;
+    }
+    .site-header__call {
+      display: none;
+    }
+  }
+</style>

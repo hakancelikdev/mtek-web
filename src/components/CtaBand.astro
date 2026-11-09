@@ -1,0 +1,94 @@
+---
+// Tabeladaki eğik lacivert panelden türetilmiş iletişim çağrısı.
+import Icon from './Icon.astro';
+import { site, whatsappLink, withBase } from '../data/site';
+
+interface Props {
+  title?: string;
+  text?: string;
+}
+
+const {
+  title = 'Projeniz için keşif ve teklif alın',
+  text = 'İhtiyacınızı anlatın; yerinde inceleyip size uygun çözümü ve teklifi hazırlayalım.',
+} = Astro.props;
+---
+
+<section class="cta on-dark" aria-labelledby="cta-baslik">
+  <div class="container cta__inner">
+    <div class="cta__text">
+      <h2 id="cta-baslik">{title}</h2>
+      <p>{text}</p>
+    </div>
+    <div class="btn-row cta__actions">
+      <a href={site.phone.href} class="btn btn--light"><Icon name="phone" />{site.phone.display}</a>
+      <a href={whatsappLink()} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp</a>
+      <a href={withBase('/iletisim#teklif')} class="btn btn--outline-light">Teklif formu</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    overflow: hidden;
+    background: var(--navy);
+    color: #fff;
+    padding-block: clamp(3rem, 2.5rem + 3vw, 5rem);
+  }
+  /* Tabeladaki gibi eğik yeşil şerit ve koyu yüzey */
+  .cta::before,
+  .cta::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  .cta::before {
+    right: -8%;
+    width: 46%;
+    background: var(--navy-deep);
+    clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .cta::after {
+    right: calc(38% - 8%);
+    width: 1.1rem;
+    background: var(--green);
+    transform: skewX(-12deg);
+    display: none;
+  }
+
+  .cta__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 1.75rem;
+  }
+  .cta__text {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 38rem;
+  }
+  .cta h2 {
+    color: #fff;
+  }
+  .cta p {
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  @media (min-width: 64rem) {
+    .cta::after {
+      display: block;
+    }
+    .cta__inner {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 3rem;
+    }
+    .cta__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

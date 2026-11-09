@@ -1,0 +1,449 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Icon from '../components/Icon.astro';
+import { addressOneLine, maps, site, whatsappLink } from '../data/site';
+
+const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+const breadcrumbs = [{ name: 'İletişim', href: '/iletisim' }];
+---
+
+<BaseLayout
+  title="İletişim | MTEK Mühendislik Adana — 0507 447 82 93"
+  description="MTEK Mühendislik iletişim: 0507 447 82 93. Sümer Mah. 69126 Sok. Dotaş Apt. No: 8C Seyhan / Adana. Telefon, WhatsApp veya form ile keşif ve teklif talebinde bulunun."
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead
+    title="İletişim"
+    intro="Keşif, teklif ya da teknik destek için bizi arayın, WhatsApp'tan yazın veya formu doldurun."
+    breadcrumbs={breadcrumbs}
+  />
+
+  <section class="section contact-section" aria-label="İletişim bilgileri">
+    <div class="container contact">
+      <div class="contact__info">
+        <h2 class="contact__name">{site.name}</h2>
+
+        <div class="contact__actions">
+          <a href={site.phone.href} class="btn btn--primary"><Icon name="phone" />{site.phone.display}</a>
+          <a href={whatsappLink()} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp ile yazın</a>
+        </div>
+
+        <dl class="contact__list">
+          <div>
+            <dt><Icon name="phone" size={20} />Telefon</dt>
+            <dd><a href={site.phone.href}>{site.phone.display}</a></dd>
+          </div>
+          <div>
+            <dt><Icon name="pin" size={20} />Adres</dt>
+            <dd>
+              <address>
+                {site.address.street}<br />
+                {site.address.district} / {site.address.city.toLocaleUpperCase('tr-TR')}
+              </address>
+              <a href={maps.directions} class="text-link directions" target="_blank" rel="noopener">
+                <Icon name="route" size={20} />Yol tarifi alın
+              </a>
+            </dd>
+          </div>
+          {
+            site.email && (
+              <div>
+                <dt>
+                  <Icon name="mail" size={20} />
+                  E-posta
+                </dt>
+                <dd>
+                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+
+        <div class="map" data-map>
+          <div class="map__placeholder">
+            <Icon name="pin" size={36} />
+            <p>{addressOneLine}</p>
+            <button type="button" class="btn btn--outline" data-map-load>Haritayı göster</button>
+            <p class="map__note">Harita Google Haritalar'dan yüklenir.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact__form" id="teklif">
+        <h2>Teklif ve bilgi talebi</h2>
+        <p class="form-intro">
+          Formu doldurduğunuzda bilgileriniz hazır bir mesaj olarak WhatsApp'ta açılır; mesajı göndermeniz yeterlidir. Form bilgileri sitemizde saklanmaz.
+        </p>
+
+        <noscript>
+          <p class="form-status form-status--error">
+            Form için tarayıcınızda JavaScript açık olmalıdır. Bize <a href={site.phone.href}>{site.phone.display}</a> numarasından ulaşabilirsiniz.
+          </p>
+        </noscript>
+
+        <form class="form" novalidate data-contact-form>
+          <div class="field">
+            <label for="ad">Ad Soyad</label>
+            <input id="ad" name="ad" type="text" autocomplete="name" required maxlength="80" aria-describedby="ad-hata" />
+            <p class="field__error" id="ad-hata" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="telefon">Telefon</label>
+            <input id="telefon" name="telefon" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="05xx xxx xx xx" aria-describedby="telefon-hata" />
+            <p class="field__error" id="telefon-hata" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="eposta">E-posta <span class="optional">(isteğe bağlı)</span></label>
+            <input id="eposta" name="eposta" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-describedby="eposta-hata" />
+            <p class="field__error" id="eposta-hata" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="konu">Hizmet konusu</label>
+            <select id="konu" name="konu" required aria-describedby="konu-hata">
+              <option value="">Seçiniz</option>
+              {services.map((s) => <option value={s.data.title}>{s.data.title}</option>)}
+              <option value="Diğer">Diğer</option>
+            </select>
+            <p class="field__error" id="konu-hata" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="mesaj">Mesaj</label>
+            <textarea id="mesaj" name="mesaj" rows="5" required maxlength="1500" aria-describedby="mesaj-hata"></textarea>
+            <p class="field__error" id="mesaj-hata" hidden></p>
+          </div>
+
+          <button type="submit" class="btn btn--whatsapp form__submit"><Icon name="whatsapp" />WhatsApp ile gönder</button>
+
+          <div class="form-status" role="status" aria-live="polite" tabindex="-1" data-form-status hidden></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { maps, site } from '../data/site';
+
+  // ----- Harita: yalnızca istenince yüklenir -----
+  const mapBox = document.querySelector<HTMLElement>('[data-map]');
+  mapBox?.querySelector('[data-map-load]')?.addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.src = maps.embed;
+    iframe.title = 'MTEK Mühendislik konumu — Google Haritalar';
+    iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    iframe.setAttribute('allowfullscreen', '');
+    mapBox.replaceChildren(iframe);
+    mapBox.classList.add('map--loaded');
+  });
+
+  // ----- Form: doğrulama ve WhatsApp'a aktarma -----
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = document.querySelector<HTMLElement>('[data-form-status]');
+
+  if (form && status) {
+    type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const field = (name: string) => form.elements.namedItem(name) as Field;
+
+    const setError = (el: Field, message: string) => {
+      const error = document.getElementById(`${el.id}-hata`);
+      if (!error) return;
+      error.textContent = message;
+      error.hidden = !message;
+      el.setAttribute('aria-invalid', String(Boolean(message)));
+    };
+
+    const phoneDigits = (value: string) => value.replace(/\D/g, '');
+    const isValidPhone = (value: string) => {
+      const d = phoneDigits(value);
+      return /^(0?[2-5]\d{9}|90[2-5]\d{9})$/.test(d);
+    };
+
+    const validate = (): Field | null => {
+      const checks: [Field, string][] = [
+        [field('ad'), field('ad').value.trim().length < 3 ? 'Lütfen adınızı ve soyadınızı yazın.' : ''],
+        [
+          field('telefon'),
+          !field('telefon').value.trim()
+            ? 'Lütfen telefon numaranızı yazın.'
+            : !isValidPhone(field('telefon').value)
+              ? 'Telefon numarası geçerli görünmüyor. Örnek: 0507 447 82 93'
+              : '',
+        ],
+        [
+          field('eposta'),
+          field('eposta').value.trim() && !(field('eposta') as HTMLInputElement).validity.valid ? 'E-posta adresi geçerli görünmüyor.' : '',
+        ],
+        [field('konu'), !field('konu').value ? 'Lütfen bir hizmet konusu seçin.' : ''],
+        [field('mesaj'), field('mesaj').value.trim().length < 10 ? 'Lütfen ihtiyacınızı birkaç cümleyle anlatın.' : ''],
+      ];
+      let firstInvalid: Field | null = null;
+      for (const [el, message] of checks) {
+        setError(el, message);
+        if (message && !firstInvalid) firstInvalid = el;
+      }
+      return firstInvalid;
+    };
+
+    const showStatus = (kind: 'success' | 'error', html: string) => {
+      status.className = `form-status form-status--${kind}`;
+      status.innerHTML = html;
+      status.hidden = false;
+      status.focus();
+    };
+
+    form.addEventListener('input', (event) => {
+      const el = event.target as Field;
+      if (el.getAttribute('aria-invalid') === 'true') setError(el, '');
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const invalid = validate();
+      if (invalid) {
+        showStatus('error', 'Formda eksik ya da hatalı alanlar var. Lütfen işaretli alanları kontrol edin.');
+        invalid.focus();
+        return;
+      }
+
+      const lines = [
+        'Merhaba, MTEK Mühendislik web sitesi üzerinden teklif/bilgi talebi:',
+        '',
+        `Ad Soyad: ${field('ad').value.trim()}`,
+        `Telefon: ${field('telefon').value.trim()}`,
+        field('eposta').value.trim() ? `E-posta: ${field('eposta').value.trim()}` : null,
+        `Hizmet konusu: ${field('konu').value}`,
+        '',
+        field('mesaj').value.trim(),
+      ].filter((line) => line !== null);
+
+      const url = `https://wa.me/${site.whatsapp.number}?text=${encodeURIComponent(lines.join('\n'))}`;
+      // 'noopener' verilirse window.open her zaman null döner; engellenme tespiti için opener elle kapatılır.
+      const opened = window.open(url, '_blank');
+      if (opened) opened.opener = null;
+
+      if (!opened) {
+        showStatus(
+          'error',
+          `WhatsApp açılamadı. Tarayıcınız yeni pencereyi engellemiş olabilir. <a href="${url}" target="_blank" rel="noopener">Mesajı WhatsApp'ta açmak için dokunun</a> veya <a href="${site.phone.href}">${site.phone.display}</a> numarasını arayın.`,
+        );
+        return;
+      }
+
+      showStatus(
+        'success',
+        `Mesajınız WhatsApp'ta hazırlandı. Talebinizin bize ulaşması için WhatsApp'ta <strong>Gönder</strong>'e dokunun. WhatsApp açılmadıysa <a href="${url}" target="_blank" rel="noopener">buraya dokunun</a>.`,
+      );
+    });
+  }
+</script>
+
+<style>
+  .contact-section {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+  .contact {
+    display: grid;
+    gap: 3.5rem;
+  }
+  @media (min-width: 64rem) {
+    .contact {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+  }
+
+  .contact__info {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .contact__name {
+    font-size: var(--step-2);
+  }
+  .contact__actions {
+    display: grid;
+    gap: 0.75rem;
+  }
+  @media (min-width: 30rem) {
+    .contact__actions {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .contact__list {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .contact__list > div {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .contact__list dt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .contact__list dt :global(svg) {
+    color: var(--navy);
+  }
+  .contact__list dd {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+    font-weight: 600;
+  }
+  .contact__list dd > a {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  address {
+    font-style: normal;
+  }
+  .directions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-self: start;
+    min-height: 2.75rem;
+  }
+
+  .map {
+    aspect-ratio: 4 / 3;
+    background: var(--mist);
+    border: 1px solid var(--line);
+  }
+  .map :global(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .map__placeholder {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.75rem;
+    height: 100%;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+  .map__placeholder > :global(svg) {
+    color: var(--navy);
+  }
+  .map__note {
+    font-size: var(--step--1);
+  }
+
+  .contact__form {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    background: var(--mist);
+    border-top: 3px solid var(--navy);
+    scroll-margin-top: calc(var(--header-h) + 1rem);
+  }
+  .contact__form h2 {
+    font-size: var(--step-2);
+  }
+  .form-intro {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .form {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .field label {
+    font-weight: 600;
+  }
+  .optional {
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #b9c1cc;
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: max(16px, var(--step-0));
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: 3px solid var(--navy);
+    outline-offset: 0;
+    border-color: var(--navy);
+  }
+  .field [aria-invalid='true'] {
+    border-color: #b42318;
+    box-shadow: inset 0 0 0 1px #b42318;
+  }
+  .field__error {
+    color: #b42318;
+    font-size: var(--step--1);
+    font-weight: 550;
+  }
+
+  .form__submit {
+    justify-self: stretch;
+  }
+  @media (min-width: 40rem) {
+    .form__submit {
+      justify-self: start;
+    }
+  }
+
+  .form-status {
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius);
+    border-left: 4px solid;
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+  .form-status:focus {
+    outline: none;
+  }
+  .form-status--success {
+    background: #ecf6ee;
+    border-color: #1f7a43;
+    color: #14432a;
+  }
+  .form-status--error {
+    background: #fdeceb;
+    border-color: #b42318;
+    color: #7a1a12;
+  }
+  .form-status :global(a) {
+    color: inherit;
+    font-weight: 650;
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import { projectCategories } from '../data/kategoriler';
+import { withBase } from '../data/site';
+
+interface Props {
+  project: CollectionEntry<'projeler'>;
+}
+
+const { project } = Astro.props;
+const d = project.data;
+---
+
+<article class="project-card">
+  <Picture src={d.cover} alt={d.coverAlt} formats={['avif', 'webp']} widths={[480, 720, 960]} sizes="(min-width: 48rem) 45vw, 100vw" loading="lazy" />
+  <div class="project-card__body">
+    <h3><a href={withBase(`/projelerimiz/${project.id}`)}>{d.title}</a></h3>
+    <p>{d.categories.map((c) => projectCategories[c]).join(' · ')}</p>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+  }
+  .project-card :global(img) {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .project-card__body {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .project-card h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .project-card h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .project-card:hover h3 a {
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-decoration-thickness: 2px;
+  }
+  .project-card p {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+</style>

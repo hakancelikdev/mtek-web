@@ -1,0 +1,448 @@
+---
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import PhotoLink from '../components/PhotoLink.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { principles, site, withBase } from '../data/site';
+import heroImage from '../content/projeler/ticari-alan-aydinlatma-ve-guvenlik/tavan-aydinlatma-genel.jpg';
+
+const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projeler')).sort((a, b) => a.data.order - b.data.order);
+const featured = projects.find((p) => p.data.featured) ?? projects[0];
+// Kapak fotoğrafı ana görselde kullanıldığı için mozaikte tekrar gösterilmez.
+const mosaic = featured ? featured.data.photos.filter((p) => p.src.src !== heroImage.src).slice(0, 5) : [];
+
+const audiences = [
+  'Bireysel müşteriler',
+  'Konut ve villa sahipleri',
+  'Apartman ve site yönetimleri',
+  'Müteahhitler ve inşaat firmaları',
+  'Ticari işletmeler ve mağazalar',
+  'Fabrikalar ve endüstriyel tesisler',
+  'Mimarlık ve mühendislik ofisleri',
+];
+---
+
+<BaseLayout
+  title="MTEK Mühendislik | Adana Elektrik Mühendisliği ve Elektrik Tesisatı"
+  description="Adana'da elektrik tesisatı, aydınlatma sistemleri, alçak gerilim, zayıf akım, kamera ve güvenlik sistemleri ile elektrik proje hizmetleri. Keşif ve teklif için: 0507 447 82 93"
+>
+  <section class="hero" aria-labelledby="hero-baslik">
+    <div class="hero__media">
+      <Picture
+        src={heroImage}
+        alt="MTEK Mühendislik uygulaması: açık tavanda galvaniz kablo tavaları, ray spotlar ve lineer LED aydınlatma"
+        formats={['avif', 'webp']}
+        widths={[640, 960, 1280, 1600, 2000]}
+        sizes="(min-width: 64rem) 62vw, 100vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+    <div class="hero__panel on-dark">
+      <div class="hero__content">
+        <h1 id="hero-baslik">Elektrikte Güven, Mühendislikte Çözüm.</h1>
+        <p class="hero__lead">
+          MTEK Mühendislik olarak elektrik tesisatlarından aydınlatma sistemlerine, alçak gerilimden zayıf akım ve güvenlik çözümlerine kadar projelendirme, uygulama ve teknik hizmetler sunuyoruz.
+        </p>
+        <div class="btn-row">
+          <a href={withBase('/faaliyet-alanlarimiz')} class="btn btn--light">Hizmetlerimizi Keşfedin</a>
+          <a href={withBase('/iletisim')} class="btn btn--outline-light">İletişime Geçin</a>
+        </div>
+        <p class="hero__call">
+          Hemen arayın: <a href={site.phone.href}>{site.phone.display}</a>
+        </p>
+      </div>
+    </div>
+    <span class="hero__stripe" aria-hidden="true"></span>
+  </section>
+
+  <section class="section intro" aria-labelledby="tanitim-baslik">
+    <div class="container intro__grid">
+      <div class="intro__text">
+        <h2 id="tanitim-baslik">Projelendirmeden uygulamaya elektrik mühendisliği</h2>
+        <div class="prose">
+          <p class="lead">
+            MTEK Mühendislik, elektrik ve mühendislik alanındaki bilgi birikimini saha tecrübesiyle birleştirerek bireysel ve kurumsal müşterilerine güvenilir çözümler sunar.
+          </p>
+          <p>
+            Elektrik tesisatları, aydınlatma sistemleri, alçak gerilim ve zayıf akım uygulamaları başta olmak üzere farklı ölçeklerdeki projelerde teknik doğruluk, iş güvenliği ve kaliteli uygulama anlayışıyla Adana'da hizmet veriyoruz.
+          </p>
+          <p><a href={withBase('/hakkimizda')} class="text-link">MTEK Mühendislik hakkında</a></p>
+        </div>
+      </div>
+      <aside class="intro__aside" aria-labelledby="kimlere-baslik">
+        <h3 id="kimlere-baslik">Kimlere hizmet veriyoruz</h3>
+        <ul role="list">
+          {audiences.map((a) => <li>{a}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--mist" aria-labelledby="hizmetler-baslik">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="hizmetler-baslik">Faaliyet Alanlarımız</h2>
+        <p>Güçlü akımdan zayıf akıma, aydınlatmadan güvenlik sistemlerine kadar bir yapının elektrik altyapısını bütün olarak ele alıyoruz.</p>
+      </div>
+      <ul role="list" class="service-index">
+        {
+          services.map((s) => (
+            <li class="service-index__item">
+              <span class="service-index__icon">
+                <Icon name={s.data.icon} size={28} />
+              </span>
+              <div class="service-index__body">
+                <h3>
+                  <a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)}>{s.data.title}</a>
+                </h3>
+                <p>{s.data.items.slice(0, 3).join(', ')} ve daha fazlası.</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    featured && (
+      <section class="section" aria-labelledby="projeler-baslik">
+        <div class="container">
+          <div class="section-head section-head--split">
+            <div>
+              <h2 id="projeler-baslik">Uygulamalarımızdan</h2>
+              <p>Sahada tamamladığımız işlerden fotoğraflar. Fotoğraflara dokunarak büyük görüntüleyebilirsiniz.</p>
+            </div>
+            <a href={withBase('/projelerimiz')} class="text-link">Tüm projeleri görün</a>
+          </div>
+          <div class="mosaic">
+            {mosaic.map((photo, i) => (
+              <PhotoLink
+                src={photo.src}
+                alt={photo.alt}
+                group="ana-sayfa"
+                class={i === 0 ? 'mosaic__item mosaic__item--lead' : 'mosaic__item'}
+                sizes={i === 0 ? '(min-width: 64rem) 50vw, 100vw' : '(min-width: 64rem) 25vw, 50vw'}
+              />
+            ))}
+          </div>
+          <p class="mosaic__caption">
+            <a href={withBase(`/projelerimiz/${featured.id}`)}>{featured.data.title}</a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--mist" aria-labelledby="neden-baslik">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="neden-baslik">Neden MTEK?</h2>
+        <p>Her işte aynı ilkelerle çalışıyoruz.</p>
+      </div>
+      <ul role="list" class="principles">
+        {
+          principles.map((p) => (
+            <li>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+  <Lightbox />
+</BaseLayout>
+
+<style>
+  /* ----- Ana görsel ----- */
+  .hero {
+    --slant: 2.5rem;
+    position: relative;
+    background: var(--navy);
+    isolation: isolate;
+  }
+  .hero__media :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: 60% 40%;
+  }
+  .hero__panel {
+    position: relative;
+    margin-top: calc(var(--slant) * -1);
+    background: var(--navy);
+    clip-path: polygon(0 var(--slant), 100% 0, 100% 100%, 0 100%);
+    color: #fff;
+  }
+  .hero__content {
+    display: grid;
+    gap: 1.25rem;
+    padding: calc(var(--slant) + 1.75rem) var(--gutter) 2.75rem;
+  }
+  .hero h1 {
+    color: #fff;
+    font-size: clamp(2.125rem, 1.4rem + 3.4vw, 4rem);
+    line-height: 1.05;
+  }
+  .hero__lead {
+    max-width: 36rem;
+    color: rgb(255 255 255 / 0.86);
+    font-size: var(--step-0);
+  }
+  .hero__call {
+    font-size: var(--step--1);
+    color: rgb(255 255 255 / 0.75);
+  }
+  .hero__call a {
+    color: #fff;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Masaüstünde panelin eğik kenarına paralel yeşil şerit (tabeladaki gibi) */
+  .hero__stripe {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+    background: var(--green);
+  }
+
+  /* Mobilde panelin eğik üst kenarını izleyen yeşil çizgi */
+  @media (max-width: 63.99rem) {
+    .hero__panel::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: calc(var(--slant) + 6px);
+      background: var(--green);
+      clip-path: polygon(0 var(--slant), 100% 0, 100% 6px, 0 calc(var(--slant) + 6px));
+    }
+  }
+
+  @media (min-width: 40rem) and (max-width: 63.99rem) {
+    .hero__media :global(img) {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      --cut: clamp(7rem, 10vw, 10rem);
+      --panel: 58%;
+      display: flex;
+      align-items: stretch;
+      min-height: clamp(34rem, calc(100svh - var(--header-h)), 46rem);
+    }
+    .hero__media {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 62%;
+      z-index: -1;
+    }
+    .hero__media :global(picture),
+    .hero__media :global(img) {
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .hero__panel {
+      width: var(--panel);
+      margin: 0;
+      clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+      display: flex;
+      align-items: center;
+    }
+    .hero__content {
+      gap: 1.5rem;
+      padding-block: 4rem;
+      padding-left: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)));
+      padding-right: calc(var(--cut) + 2rem);
+    }
+    .hero__stripe {
+      display: block;
+      inset: 0;
+      clip-path: polygon(
+        calc(var(--panel) + 0.6rem) 0,
+        calc(var(--panel) + 1.6rem) 0,
+        calc(var(--panel) - var(--cut) + 1.6rem) 100%,
+        calc(var(--panel) - var(--cut) + 0.6rem) 100%
+      );
+    }
+  }
+
+  /* ----- Tanıtım ----- */
+  .intro__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .intro__text {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .intro__aside {
+    align-self: start;
+    padding: 1.5rem 0 0;
+    border-top: 2px solid var(--navy);
+  }
+  .intro__aside h3 {
+    font-size: var(--step-0);
+    margin-bottom: 0.75rem;
+  }
+  .intro__aside li {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  @media (min-width: 64rem) {
+    .intro__grid {
+      grid-template-columns: 1.6fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  /* ----- Faaliyet alanları dizini ----- */
+  .service-index {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .service-index__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .service-index__icon {
+    color: var(--navy);
+    padding-top: 0.15rem;
+  }
+  .service-index__body {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .service-index h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  /* Satırın tamamı tıklanabilir */
+  .service-index h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .service-index__item:hover h3 a {
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-decoration-thickness: 2px;
+  }
+  .service-index p {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+  @media (min-width: 56rem) {
+    .service-index {
+      grid-template-columns: 1fr 1fr;
+      column-gap: clamp(2rem, 5vw, 5rem);
+    }
+  }
+
+  /* ----- Proje mozaiği ----- */
+  .section-head--split {
+    max-width: none;
+    grid-template-columns: 1fr;
+    align-items: end;
+  }
+  .section-head--split > div {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 40rem;
+  }
+  @media (min-width: 48rem) {
+    .section-head--split {
+      grid-template-columns: 1fr auto;
+    }
+  }
+
+  .mosaic {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .mosaic :global(.mosaic__item) {
+    aspect-ratio: 1;
+  }
+  .mosaic :global(.mosaic__item--lead) {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 10;
+  }
+  @media (min-width: 64rem) {
+    .mosaic {
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      height: clamp(26rem, 38vw, 34rem);
+    }
+    .mosaic :global(.mosaic__item),
+    .mosaic :global(.mosaic__item--lead) {
+      aspect-ratio: auto;
+    }
+    .mosaic :global(.mosaic__item--lead) {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+  }
+  .mosaic__caption {
+    margin-top: 1rem;
+    font-size: var(--step--1);
+  }
+  .mosaic__caption a {
+    color: var(--ink-soft);
+  }
+
+  /* ----- Neden MTEK ----- */
+  .principles {
+    display: grid;
+    gap: 2rem;
+  }
+  .principles li {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .principles li::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 2.5rem;
+    height: 3px;
+    background: var(--green);
+  }
+  .principles p {
+    color: var(--ink-soft);
+  }
+  @media (min-width: 40rem) {
+    .principles {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 2.5rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+  }
+</style>

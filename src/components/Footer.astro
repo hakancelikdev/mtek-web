@@ -1,0 +1,156 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import logo from '../assets/marka/mtek-logo.png';
+import Icon from './Icon.astro';
+import { addressOneLine, maps, nav, site, whatsappLink, withBase } from '../data/site';
+
+const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Image src={logo} alt="MTEK Elektrik Mühendislik logosu" widths={[160, 320]} sizes="160px" loading="lazy" />
+      <p>Elektrik tesisatı, aydınlatma, alçak gerilim, zayıf akım ve güvenlik sistemlerinde projelendirme, uygulama ve teknik hizmetler.</p>
+    </div>
+
+    <div>
+      <h2 class="site-footer__title">İletişim</h2>
+      <ul role="list" class="site-footer__contact">
+        <li>
+          <a href={site.phone.href}><Icon name="phone" size={20} />{site.phone.display}</a>
+        </li>
+        <li>
+          <a href={whatsappLink()} target="_blank" rel="noopener"><Icon name="whatsapp" size={20} />WhatsApp</a>
+        </li>
+        {
+          site.email && (
+            <li>
+              <a href={`mailto:${site.email}`}>
+                <Icon name="mail" size={20} />
+                {site.email}
+              </a>
+            </li>
+          )
+        }
+        <li>
+          <a href={maps.directions} target="_blank" rel="noopener">
+            <Icon name="pin" size={20} />
+            <span>{addressOneLine}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <nav aria-label="Alt menü">
+      <h2 class="site-footer__title">Sayfalar</h2>
+      <ul role="list" class="site-footer__links">
+        {nav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav aria-label="Faaliyet alanları">
+      <h2 class="site-footer__title">Faaliyet Alanlarımız</h2>
+      <ul role="list" class="site-footer__links">
+        {services.map((s) => <li><a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)}>{s.data.title}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <p>© {year} {site.name}. Tüm hakları saklıdır.</p>
+    <p>Adana</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--mist);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(3rem, 2.5rem + 2vw, 4.5rem);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .site-footer__brand {
+    display: grid;
+    gap: 1rem;
+    max-width: 22rem;
+    align-content: start;
+  }
+  .site-footer__brand img {
+    width: 160px;
+  }
+
+  .site-footer__title {
+    margin-bottom: 1rem;
+    font-size: var(--step-0);
+    font-stretch: var(--wide);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .site-footer a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .site-footer a:hover {
+    color: var(--navy);
+    text-decoration: underline;
+  }
+
+  .site-footer__contact {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .site-footer__contact a {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding-block: 0.4rem;
+  }
+  .site-footer__contact svg {
+    flex: none;
+    margin-top: 0.1rem;
+    color: var(--navy);
+  }
+
+  .site-footer__links {
+    display: grid;
+  }
+  .site-footer__links a {
+    display: block;
+    padding-block: 0.45rem;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-top: 3rem;
+    padding-block: 1.5rem 6rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 40rem) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 64rem) {
+    .site-footer__grid {
+      grid-template-columns: 1.3fr 1.2fr 0.8fr 1.3fr;
+    }
+    .site-footer__bottom {
+      padding-bottom: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,108 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ServiceVisual from '../../components/ServiceVisual.astro';
+import { withBase } from '../../data/site';
+
+const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+const breadcrumbs = [{ name: 'Faaliyet Alanlarımız', href: '/faaliyet-alanlarimiz' }];
+---
+
+<BaseLayout
+  title="Faaliyet Alanlarımız | Adana Elektrik, Aydınlatma, Kamera ve Zayıf Akım"
+  description="MTEK Mühendislik faaliyet alanları: elektrik tesisatı, aydınlatma sistemleri, alçak gerilim, zayıf akım, güvenlik ve kamera sistemleri, elektrik proje hizmetleri. Adana."
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead
+    title="Faaliyet Alanlarımız"
+    intro="Bir yapının elektrik altyapısını projeden uygulamaya kadar bütün olarak ele alıyoruz. Alanlarımızı inceleyin, ihtiyacınıza uygun hizmet için bize ulaşın."
+    breadcrumbs={breadcrumbs}
+  />
+
+  <section class="section" aria-label="Faaliyet alanları listesi">
+    <div class="container">
+      <ul role="list" class="services">
+        {
+          services.map((s, i) => (
+            <li class="service">
+              <ServiceVisual service={s} sizes="(min-width: 56rem) 42vw, 100vw" loading={i < 2 ? 'eager' : 'lazy'} class="service__visual" />
+              <div class="service__body">
+                <h2>
+                  <a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)}>{s.data.title}</a>
+                </h2>
+                <p>{s.data.summary}</p>
+                <ul class="service__items">
+                  {s.data.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+                <a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)} class="text-link" aria-hidden="true" tabindex="-1">
+                  Ayrıntılar
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .services {
+    display: grid;
+    gap: clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  .service {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .service__body {
+    display: grid;
+    gap: 1rem;
+    max-width: 36rem;
+  }
+  .service h2 {
+    font-size: var(--step-2);
+  }
+  .service h2 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .service h2 a:hover {
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-decoration-thickness: 2px;
+  }
+  .service__body > p {
+    color: var(--ink-soft);
+  }
+  .service__items {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .service__items li::marker {
+    color: var(--green);
+  }
+  .service__body .text-link {
+    justify-self: start;
+  }
+
+  @media (min-width: 56rem) {
+    .service {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+    }
+    .service:nth-child(even) :global(.service__visual) {
+      order: 2;
+    }
+  }
+</style>

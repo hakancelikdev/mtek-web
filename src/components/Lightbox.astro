@@ -1,0 +1,199 @@
+---
+// Sayfada bir kez kullanılır. `data-lightbox` özniteliği taşıyan bağlantıları büyük görüntüde açar.
+// JavaScript yoksa bağlantılar görselin kendisini açar.
+import Icon from './Icon.astro';
+---
+
+<dialog class="lightbox" aria-label="Fotoğraf görüntüleyici" data-lightbox-dialog>
+  <figure class="lightbox__figure">
+    <img class="lightbox__img" alt="" data-lightbox-img />
+    <figcaption class="lightbox__caption">
+      <span data-lightbox-caption></span>
+      <span class="lightbox__count" data-lightbox-count></span>
+    </figcaption>
+  </figure>
+  <button type="button" class="lightbox__btn lightbox__close" data-lightbox-close aria-label="Kapat">
+    <Icon name="close" size={26} />
+  </button>
+  <button type="button" class="lightbox__btn lightbox__prev" data-lightbox-prev aria-label="Önceki fotoğraf">
+    <Icon name="prev" size={28} />
+  </button>
+  <button type="button" class="lightbox__btn lightbox__next" data-lightbox-next aria-label="Sonraki fotoğraf">
+    <Icon name="next" size={28} />
+  </button>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox-dialog]');
+
+  if (dialog && typeof dialog.showModal === 'function') {
+    const img = dialog.querySelector<HTMLImageElement>('[data-lightbox-img]')!;
+    const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]')!;
+    const count = dialog.querySelector<HTMLElement>('[data-lightbox-count]')!;
+    const prevBtn = dialog.querySelector<HTMLButtonElement>('[data-lightbox-prev]')!;
+    const nextBtn = dialog.querySelector<HTMLButtonElement>('[data-lightbox-next]')!;
+
+    let items: HTMLAnchorElement[] = [];
+    let index = 0;
+
+    const visible = (el: HTMLElement) => !el.closest('[hidden]');
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const item = items[index];
+      img.src = item.href;
+      img.alt = item.dataset.caption ?? '';
+      img.width = Number(item.dataset.width) || 0;
+      img.height = Number(item.dataset.height) || 0;
+      caption.textContent = item.dataset.caption ?? '';
+      count.textContent = items.length > 1 ? `${index + 1} / ${items.length}` : '';
+      const single = items.length < 2;
+      prevBtn.hidden = single;
+      nextBtn.hidden = single;
+    };
+
+    document.addEventListener('click', (event) => {
+      const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-lightbox]');
+      if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
+      event.preventDefault();
+      const group = link.dataset.lightbox;
+      items = [...document.querySelectorAll<HTMLAnchorElement>(`a[data-lightbox="${group}"]`)].filter(visible);
+      dialog.showModal();
+      show(items.indexOf(link));
+    });
+
+    prevBtn.addEventListener('click', () => show(index - 1));
+    nextBtn.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('[data-lightbox-close]')!.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+
+    // Fotoğrafın dışındaki boş alana tıklanınca kapat
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    // Dokunmatik ekranlarda kaydırarak geçiş
+    let startX = 0;
+    let startY = 0;
+    dialog.addEventListener('pointerdown', (event) => {
+      startX = event.clientX;
+      startY = event.clientY;
+    });
+    dialog.addEventListener('pointerup', (event) => {
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (items.length > 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(dx < 0 ? index + 1 : index - 1);
+    });
+
+    dialog.addEventListener('close', () => {
+      img.removeAttribute('src');
+    });
+  }
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(14 18 30 / 0.96);
+    color: #fff;
+    overscroll-behavior: contain;
+  }
+  .lightbox::backdrop {
+    background: rgb(14 18 30 / 0.96);
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox__figure {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: center;
+    margin: 0;
+    padding: 4rem 1rem 1.25rem;
+    max-width: 100%;
+  }
+  .lightbox__img {
+    max-width: min(100%, 1600px);
+    max-height: calc(100dvh - 9rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .lightbox__caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1rem;
+    max-width: 50rem;
+    font-size: var(--step--1);
+    text-align: center;
+    color: rgb(255 255 255 / 0.85);
+  }
+  .lightbox__count {
+    font-variant-numeric: tabular-nums;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .lightbox__btn {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    cursor: pointer;
+  }
+  .lightbox__btn:hover {
+    background: rgb(255 255 255 / 0.24);
+  }
+  .lightbox__btn:focus-visible {
+    outline-color: #fff;
+  }
+  .lightbox__close {
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: 0.75rem;
+  }
+  .lightbox__prev,
+  .lightbox__next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .lightbox__prev {
+    left: 0.75rem;
+  }
+  .lightbox__next {
+    right: 0.75rem;
+  }
+  .lightbox__btn[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 40rem) {
+    .lightbox__prev,
+    .lightbox__next {
+      top: auto;
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
+      transform: none;
+    }
+    .lightbox__figure {
+      padding-bottom: 4.5rem;
+    }
+  }
+</style>

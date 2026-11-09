@@ -1,0 +1,187 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ServiceVisual from '../../components/ServiceVisual.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Icon from '../../components/Icon.astro';
+import { site, whatsappLink, withBase } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  const services = (await getCollection('hizmetler')).sort((a, b) => a.data.order - b.data.order);
+  return services.map((service) => ({ params: { slug: service.id }, props: { service, services } }));
+}) satisfies GetStaticPaths;
+
+const { service, services } = Astro.props;
+const { Content } = await render(service);
+const d = service.data;
+
+const projects = (await getCollection('projeler'))
+  .filter((p) => p.data.categories.some((c) => d.projectCategories.includes(c)))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const others = services.filter((s) => s.id !== service.id);
+const breadcrumbs = [
+  { name: 'Faaliyet Alanlarımız', href: '/faaliyet-alanlarimiz' },
+  { name: d.title, href: `/faaliyet-alanlarimiz/${service.id}` },
+];
+const waText = `Merhaba, MTEK Mühendislik "${d.title}" hizmeti hakkında bilgi ve teklif almak istiyorum.`;
+---
+
+<BaseLayout title={`${d.seoTitle} | MTEK`} description={d.seoDescription} breadcrumbs={breadcrumbs}>
+  <PageHead title={d.title} intro={d.summary} breadcrumbs={breadcrumbs}>
+    <div class="btn-row head-actions">
+      <a href={site.phone.href} class="btn btn--primary"><Icon name="phone" />Hemen arayın</a>
+      <a href={whatsappLink(waText)} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp</a>
+    </div>
+  </PageHead>
+
+  <section class="section" aria-labelledby="kapsam-baslik">
+    <div class="container detail">
+      <div class="detail__main">
+        <div class="prose">
+          <Content />
+        </div>
+        <div class="scope">
+          <h2 id="kapsam-baslik">Bu kapsamdaki hizmetler</h2>
+          <ul role="list">
+            {d.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+      <ServiceVisual service={service} sizes="(min-width: 64rem) 38vw, 100vw" loading="eager" class="detail__visual" />
+    </div>
+  </section>
+
+  {
+    projects.length > 0 && (
+      <section class="section section--mist" aria-labelledby="ilgili-projeler">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="ilgili-projeler">Bu alandaki uygulamalarımız</h2>
+          </div>
+          <ul role="list" class="related-projects">
+            {projects.map((p) => (
+              <li>
+                <ProjectCard project={p} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="diger-alanlar">
+    <div class="container">
+      <h2 id="diger-alanlar" class="others__title">Diğer faaliyet alanlarımız</h2>
+      <ul role="list" class="others">
+        {
+          others.map((s) => (
+            <li>
+              <a href={withBase(`/faaliyet-alanlarimiz/${s.id}`)}>
+                <Icon name={s.data.icon} size={22} />
+                {s.data.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand title={`${d.title} için teklif alın`} />
+</BaseLayout>
+
+<style>
+  .head-actions {
+    margin-top: 0.5rem;
+  }
+
+  .detail {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .detail__main {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .scope h2 {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+  .scope ul {
+    border-top: 1px solid var(--line);
+  }
+  .scope li {
+    position: relative;
+    padding: 0.85rem 0 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    font-weight: 550;
+  }
+  .scope li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1.35rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--green);
+    transform: skewX(-20deg);
+  }
+  @media (min-width: 64rem) {
+    .detail {
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+    .detail :global(.detail__visual) {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+
+  .related-projects {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 48rem) {
+    .related-projects {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .others__title {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+  .others {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .others a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .others a :global(svg) {
+    color: var(--navy);
+    flex: none;
+  }
+  .others a:hover {
+    color: var(--navy);
+  }
+  @media (min-width: 48rem) {
+    .others {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2.5rem;
+    }
+  }
+</style>

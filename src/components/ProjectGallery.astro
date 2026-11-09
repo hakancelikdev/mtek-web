@@ -1,0 +1,54 @@
+---
+// Bir projenin tüm fotoğrafları; tıklanınca lightbox açılır.
+import type { CollectionEntry } from 'astro:content';
+import PhotoLink from './PhotoLink.astro';
+
+interface Props {
+  project: CollectionEntry<'projeler'>;
+  eagerFirst?: boolean;
+}
+
+const { project, eagerFirst = false } = Astro.props;
+const photos = project.data.photos.length ? project.data.photos : [{ src: project.data.cover, alt: project.data.coverAlt }];
+---
+
+<ul role="list" class="gallery">
+  {
+    photos.map((photo, i) => (
+      <li class:list={['gallery__item', { 'gallery__item--wide': photo.src.width > photo.src.height }]}>
+        <PhotoLink
+          src={photo.src}
+          alt={photo.alt}
+          group={project.id}
+          sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+          loading={eagerFirst && i < 2 ? 'eager' : 'lazy'}
+        />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-flow: dense;
+    gap: 0.5rem;
+  }
+  .gallery__item :global(.photo-link) {
+    height: 100%;
+    aspect-ratio: 3 / 4;
+  }
+  .gallery__item--wide {
+    grid-column: span 2;
+  }
+  .gallery__item--wide :global(.photo-link) {
+    aspect-ratio: 16 / 9;
+  }
+  @media (min-width: 64rem) {
+    .gallery {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+  }
+</style>
