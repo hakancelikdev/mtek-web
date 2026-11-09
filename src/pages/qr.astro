@@ -1,0 +1,31 @@
+---
+// QR kodla açılan sayfa. İçeriği netleşene kadar arama motorlarına kapalıdır ve site haritasında yer almaz.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { maps, site, whatsappLink } from '../data/site';
+---
+
+<BaseLayout title="MTEK Mühendislik" description="MTEK Mühendislik iletişim bilgileri." noindex>
+  <section class="section">
+    <div class="container qr">
+      <h1>{site.name}</h1>
+      <div class="qr__actions">
+        <a href={site.phone.href} class="btn btn--primary"><Icon name="phone" />{site.phone.display}</a>
+        <a href={whatsappLink()} class="btn btn--whatsapp" target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp ile yazın</a>
+        <a href={maps.directions} class="btn btn--outline" target="_blank" rel="noopener"><Icon name="route" />Yol tarifi alın</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .qr {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 30rem;
+  }
+  .qr__actions {
+    display: grid;
+    gap: 0.75rem;
+  }
+</style>

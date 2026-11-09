@@ -12,7 +12,8 @@ export default defineConfig({
     format: 'file',
     inlineStylesheets: 'always',
   },
-  integrations: [sitemap()],
+  // /qr sayfası QR kodla açılır; aramada çıkması gerekmez.
+  integrations: [sitemap({ filter: (page) => !/\/qr$/.test(page) })],
   vite: {
     build: {
       // Scriptleri harici dosya olarak üret; CSP'de 'unsafe-inline' gerekmez.
